@@ -1,25 +1,75 @@
-FROM registry.access.redhat.com/ubi8/ubi:8.0
-# Generic labels
-LABEL Component="httpd" \
-      Name="s2i-do288-httpd" \
-      Version="1.0" \
-      Release="1"
-# Labels consumed by OpenShift
-LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
-      io.k8s.display-name="Apache HTTP Server S2I builder image for DO288" \
-      io.openshift.expose-services="8080:http" \
-      io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
-# This label is used to categorize this image as a builder image in the
-# OpenShift web console.
-LABEL io.openshift.tags="builder, httpd, httpd24"
-# Apache HTTP Server DocRoot
-ENV DOCROOT /var/www/html
-RUN   yum install -y --nodocs --disableplugin=subscription-manager httpd && \
-      yum clean all --disableplugin=subscription-manager -y && \
-      echo "This is the default index page from the s2i-do288-httpd S2I builder image." > ${DOCROOT}/index.html
-# Change web server port to 8080
-RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
-# Copy the S2I scripts to the default location indicated by the
-# io.openshift.s2i.scripts-url LABEL (default is /usr/libexec/s2i) COPY ./s2i/bin/ /usr/libexec/s2i
+FROM quay.io/centos7/s2i-core-centos7
 
- 
+# Apache HTTP Server image.
+#
+# Volumes:
+#  * /var/www - Datastore for httpd
+#  * /var/log/httpd24 - Storage for logs when $HTTPD_LOG_TO_VOLUME is set
+# Environment:
+#  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
+
+ENV HTTPD_VERSION=2.4
+
+ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
+    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
+and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
+which extend the core functionality. \
+These can range from server-side programming language support to authentication schemes. \
+Virtual hosting allows one Apache installation to serve many different Web sites."
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
+      io.openshift.expose-services="8080:http,8443:https" \
+      io.openshift.tags="builder,httpd,httpd24" \
+      name="centos7/httpd-24-centos7" \
+      version="$HTTPD_VERSION" \
+      com.redhat.component="httpd24-container" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/centos7/httpd-24-centos7 sample-server" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
+
+EXPOSE 8080
+EXPOSE 8443
+
+RUN yum install -y yum-utils && \
+    yum install -y centos-release-scl epel-release && \
+    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl httpd24-mod_auth_mellon httpd24-mod_security openssl" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    yum -y clean all --enablerepo='*'
+
+ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
+    HTTPD_APP_ROOT=${APP_ROOT} \
+    HTTPD_CONFIGURATION_PATH=${APP_ROOT}/etc/httpd.d \
+    HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
+    HTTPD_MAIN_CONF_MODULES_D_PATH=/etc/httpd/conf.modules.d \
+    HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+    HTTPD_TLS_CERT_PATH=/etc/httpd/tls \
+    HTTPD_VAR_RUN=/var/run/httpd \
+    HTTPD_DATA_PATH=/var/www \
+    HTTPD_DATA_ORIG_PATH=/opt/rh/httpd24/root/var/www \
+    HTTPD_LOG_PATH=/var/log/httpd24 \
+    HTTPD_SCL=httpd24
+
+# When bash is started non-interactively, to run a shell script, for example it
+# looks for this variable and source the content of this file. This will enable
+# the SCL for all scripts without need to do 'scl enable'.
+ENV BASH_ENV=${HTTPD_APP_ROOT}/scl_enable \
+    ENV=${HTTPD_APP_ROOT}/scl_enable \
+    PROMPT_COMMAND=". ${HTTPD_APP_ROOT}/scl_enable"
+
+COPY ./s2i/bin/ $STI_SCRIPTS_PATH
+COPY ./root /
+
+# Reset permissions of filesystem to default values
+RUN /usr/libexec/httpd-prepare && rpm-file-permissions
+
+USER 1001
+
+# Not using VOLUME statement since it's not working in OpenShift Online:
+# https://github.com/sclorg/httpd-container/issues/30
+# VOLUME ["${HTTPD_DATA_PATH}"]
+# VOLUME ["${HTTPD_LOG_PATH}"]
+
+CMD ["/usr/bin/run-httpd"]
