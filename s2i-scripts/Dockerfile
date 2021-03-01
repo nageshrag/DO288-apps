@@ -13,11 +13,16 @@ LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
 # This label is used to categorize this image as a builder image in the
 # OpenShift web console.
 LABEL io.openshift.tags="builder, httpd, httpd24"
-# Add application sources to a directory where the assemble script expects them
-# and set permissions so that the container runs without the root access
-USER 0
-
-USER 1001
+# Apache HTTP Server DocRoot
+ENV DOCROOT /var/www/html
+RUN   yum install -y --nodocs --disableplugin=subscription-manager httpd && \
+      yum clean all --disableplugin=subscription-manager -y && \
+      echo "This is the default index page from the s2i-do288-httpd S2I builder
+ image." > ${DOCROOT}/index.html
+# Change web server port to 8080
+RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
+# Copy the S2I scripts to the default location indicated by the
+COPY ./s2i/bin/ /usr/libexec/s2i
 
 # Let the assemble script install the dependencies
 RUN /usr/libexec/s2i/assemble
