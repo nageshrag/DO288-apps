@@ -17,8 +17,7 @@ LABEL io.openshift.tags="builder, httpd, httpd24"
 ENV DOCROOT /var/www/html
 RUN   yum install -y --nodocs --disableplugin=subscription-manager httpd && \
       yum clean all --disableplugin=subscription-manager -y && \
-      echo "This is the default index page from the s2i-do288-httpd S2I builder
- image." > ${DOCROOT}/index.html
+      echo "This is the default index page from the s2i-do288-httpd S2I builder image." > ${DOCROOT}/index.html
 # Change web server port to 8080
 RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
 # Copy the S2I scripts to the default location indicated by the
