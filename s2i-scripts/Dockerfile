@@ -16,7 +16,6 @@ LABEL io.openshift.tags="builder, httpd, httpd24"
 # Add application sources to a directory where the assemble script expects them
 # and set permissions so that the container runs without the root access
 USER 0
-ADD index.html /tmp/src/index.html
 RUN chown -R 1001:0 /tmp/src
 USER 1001
 
