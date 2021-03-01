@@ -1,4 +1,4 @@
-FROM quay.io/centos7/s2i-core-centos7
+FROM rhscl/s2i-core-rhel7:1
 
 # Apache HTTP Server image.
 #
@@ -23,17 +23,18 @@ LABEL summary="$SUMMARY" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,httpd,httpd24" \
-      name="centos7/httpd-24-centos7" \
+      name="rhscl/httpd-24-rhel7" \
       version="$HTTPD_VERSION" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
       com.redhat.component="httpd24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/centos7/httpd-24-centos7 sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ rhscl/httpd-24-rhel7 sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
 EXPOSE 8443
 
 RUN yum install -y yum-utils && \
-    yum install -y centos-release-scl epel-release && \
+    prepare-yum-repositories rhel-server-rhscl-7-rpms && \
     INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl httpd24-mod_auth_mellon httpd24-mod_security openssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
