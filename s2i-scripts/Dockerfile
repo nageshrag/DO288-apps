@@ -15,7 +15,10 @@ LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
 LABEL io.openshift.tags="builder, httpd, httpd24"
 # Apache HTTP Server DocRoot
 ENV DOCROOT /var/www/html
-
+USER 0
+ADD /index.html /tmp/src/index.html
+RUN chown -R 1001:0 /tmp/src
+USER 1001
 # Change web server port to 8080
 RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
 # Copy the S2I scripts to the default location indicated by the
