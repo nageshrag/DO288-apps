@@ -16,7 +16,7 @@ LABEL io.openshift.tags="builder, httpd, httpd24"
 # Apache HTTP Server DocRoot
 ENV DOCROOT /var/www/html
 USER 0
-ADD /test/test-app/index.html /tmp/src/index.html
+ADD index.html /tmp/src/index.html
 RUN chown -R 1001:0 /tmp/src
 USER 1001
 # Change web server port to 8080
