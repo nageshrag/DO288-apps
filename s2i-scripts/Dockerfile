@@ -3,7 +3,7 @@ FROM registry.redhat.io/rhscl/httpd-24-rhel7
 # Generic labels
 LABEL Component="httpd" \
       Name="s2i-do288-httpd" \
-      Version="1.0" \
+      Version="2.0" \
       Release="1"
 # Labels consumed by OpenShift
 LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
