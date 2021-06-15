@@ -1,1 +1,1 @@
-FROM docker pull nagesh257/nginx-cu-onbuild:latest
+FROM docker pull quay.io/nagesh_rag25/custom-nginx:latest
