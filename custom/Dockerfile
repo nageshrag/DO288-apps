@@ -1,1 +1,1 @@
-FROM nagesh257/nginx-cu-onbuil
+FROM docker pull nagesh257/nginx-cu-onbuild:latest
