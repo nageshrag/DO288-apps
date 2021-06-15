@@ -1,5 +1,5 @@
 FROM quay.io/nagesh_rag25/custom-nginx:latest
-RUN sed -i "s/listen 80/listen 8081/g" /etc/nginx/nginx.conf 
+RUN sed -i "s/listen       80 default_server;/listen       8081 default_server;/g" /etc/nginx/nginx.conf 
 EXPOSE 8081
 
 
