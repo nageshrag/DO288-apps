@@ -1,6 +1,6 @@
 
 <?php
- 
+ throw new Exception("Error occured");
  $result="";
 
  foreach ($_POST as $key => $value) {
