@@ -1,9 +1,8 @@
-FROM registry.redhat.io/rhscl/httpd-24-rhel7
-
+FROM registry.access.redhat.com/ubi8/ubi:8.0
 # Generic labels
 LABEL Component="httpd" \
       Name="s2i-do288-httpd" \
-      Version="2.0" \
+      Version="1.0" \
       Release="1"
 # Labels consumed by OpenShift
 LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
@@ -15,17 +14,13 @@ LABEL io.k8s.description="A basic Apache HTTP Server S2I builder image" \
 LABEL io.openshift.tags="builder, httpd, httpd24"
 # Apache HTTP Server DocRoot
 ENV DOCROOT /var/www/html
-USER 0
-ADD index.html /tmp/src/index.html
-RUN chown -R 1001:0 /tmp/src
-USER 1001
+RUN yum install -y --nodocs --disableplugin=subscription-manager httpd && \
+      yum clean all --disableplugin=subscription-manager -y && \
+      echo "This is the default index page from the s2i-do288-httpd S2I builder
+      image." > ${DOCROOT}/index.html
 # Change web server port to 8080
 RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
+
 # Copy the S2I scripts to the default location indicated by the
+# io.openshift.s2i.scripts-url LABEL (default is /usr/libexec/s2i)
 COPY ./s2i/bin/ /usr/libexec/s2i
-
-# Let the assemble script install the dependencies
-RUN /usr/libexec/s2i/assemble
-
-# The run script uses standard ways to run the application
-CMD /usr/libexec/s2i/run
