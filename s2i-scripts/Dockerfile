@@ -26,7 +26,7 @@ RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
 COPY ./s2i/bin/ /usr/libexec/s2i
 
 # Let the assemble script install the dependencies
-RUN /usr/libexec/s2i/assemble
+#RUN /usr/libexec/s2i/assemble
 
 # The run script uses standard ways to run the application
-CMD /usr/libexec/s2i/run
+#CMD /usr/libexec/s2i/run
