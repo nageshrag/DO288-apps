@@ -24,3 +24,9 @@ RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
 # Copy the S2I scripts to the default location indicated by the
 # io.openshift.s2i.scripts-url LABEL (default is /usr/libexec/s2i)
 COPY ./s2i/bin/ /usr/libexec/s2i
+
+# Let the assemble script install the dependencies
+RUN /usr/libexec/s2i/assemble
+
+# The run script uses standard ways to run the application
+CMD /usr/libexec/s2i/run
