@@ -1,4 +1,6 @@
 #!/bin/bash
+HOOK_RETRIES = 5
+HOOK_SLEEP = 1
 echo 'Downloading SQL script that initializes the database...'
 curl -s -O https://github.com/RedHatTraining/DO288-apps/releases/download/
 OCP-4.1-1/users.sql
