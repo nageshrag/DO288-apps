@@ -1,9 +1,8 @@
 #!/bin/bash
-HOOK_RETRIES = 5
-HOOK_SLEEP = 1
+HOOK_RETRIES=5
+HOOK_SLEEP=1
 echo 'Downloading SQL script that initializes the database...'
-curl -s -O https://github.com/RedHatTraining/DO288-apps/releases/download/
-OCP-4.1-1/users.sql
+curl -O https://github.com/RedHatTraining/DO288-apps/releases/download/OCP-4.1-1/users.sql
 echo "Trying $HOOK_RETRIES times, sleeping $HOOK_SLEEP sec between tries:"
 while [ "$HOOK_RETRIES" != 0 ]; do
   echo -n 'Checking if MySQL is up...'
