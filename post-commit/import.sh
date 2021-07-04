@@ -1,6 +1,10 @@
 #!/bin/bash
 HOOK_RETRIES=5
 HOOK_SLEEP=1
+MYSQL_SERVICE_HOST="mysql"
+MYSQL_USER="test"
+MYSQL_PASSWORD="redhat"
+MYSQL_DATABASE="testdb"
 echo 'Downloading SQL script that initializes the database...'
 curl -O https://raw.githubusercontent.com/nageshrag/DO288-apps/master/post-commit/users.sql
 echo "Trying $HOOK_RETRIES times, sleeping $HOOK_SLEEP sec between tries:"
