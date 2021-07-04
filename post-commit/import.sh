@@ -25,6 +25,12 @@ if [ "$HOOK_RETRIES" = 0 ]; then
   echo 'Too many tries, giving up'
   exit 1
 fi
+echo "list files"
+for entry in "/tmp/"/*
+do
+  echo "$entry"
+done
+
 # Run the SQL script
 if mysql -h$MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD -P3306 $MYSQL_DATABASE < /tmp/users.sql
 then
