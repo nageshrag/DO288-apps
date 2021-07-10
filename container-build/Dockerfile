@@ -1,7 +1,7 @@
 # Use the redhattraining/httpd-parent image as base
 # FROM quay.io/uma_prasanthi27/httpd-parent
-FROM quay.io/redhattraining/httpd-parent
-#FROM quay.io/uma_prasanthi27/httpd-parent
+#FROM quay.io/redhattraining/httpd-parent
+FROM quay.io/uma_prasanthi27/httpd-parent
 # Change the port to 8080
 EXPOSE 8080
 
@@ -17,6 +17,6 @@ RUN sed -i "s/Listen 80/Listen 8080/g" /etc/httpd/conf/httpd.conf
 # Permissions to allow container to run on OpenShift
 RUN chgrp -R 0 /var/log/httpd /var/run/httpd && \
     chmod -R g=u /var/log/httpd /var/run/httpd
-
+RUN echo "ServerName localhost" >> /etc/httpd/conf/httpd.conf
 # Run as a non-privileged user
 USER 1001
